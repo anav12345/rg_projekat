@@ -2,9 +2,7 @@
 // Created by ana on 5/13/25.
 //
 
-#include "../include/MainController.hpp"
-
-#include "../../engine/libs/glfw/include/GLFW/glfw3.h"
+#include <MainController.hpp>
 
 #include <engine/graphics/GraphicsController.hpp>
 #include <engine/graphics/OpenGL.hpp>
@@ -30,12 +28,11 @@ void MainController::initialize() {
     auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
     platform->register_platform_event_observer(std::make_unique<MainPlatformEventObserver>());
 
-    // da bi mis bio na sredini
+    auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
+    auto camera = graphics->camera();
+    camera->Position = glm::vec3(0.0f, 3.0f, 0.0f);
     platform->set_enable_cursor(false);
-    int width = platform->window()->width() / 2.0;
-    int height = platform->window()->height() / 2.0;
-    GLFWwindow *window_handle = platform->window()->handle_();
-    glfwSetCursorPos(window_handle, width, height);
+
 
     // dirLight
     directionalLight.direction = glm::vec3(0.0f, -8.0f, -5.0f);

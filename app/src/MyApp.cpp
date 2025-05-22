@@ -2,7 +2,7 @@
 // Created by ana on 5/13/25.
 //
 
-#include "../include/MyApp.hpp"
+#include <MyApp.hpp>
 
 #include <MainController.hpp>
 #include <spdlog/spdlog.h>
