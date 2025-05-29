@@ -21,13 +21,13 @@ struct PointLight {
 
 namespace app {
 class Semaphore {
-private:
-    void turn_on(PointLight &light, int color);
-
-    void turn_off(PointLight &light);
 
 public:
     void initialize_lights();
+
+    void turn_on(PointLight &light, int color);
+
+    void turn_off(PointLight &light);
 
     void transition_from_red_to_green();
 

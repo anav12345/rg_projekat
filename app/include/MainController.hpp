@@ -4,7 +4,7 @@
 
 #ifndef MAINCONTROLLER_HPP
 #define MAINCONTROLLER_HPP
-#include <chrono>
+#include <Semaphore.hpp>
 #include <engine/core/Controller.hpp>
 #include <glm/vec3.hpp>
 
@@ -39,12 +39,6 @@ class MainController : public engine::core::Controller {
 
     void update_camera();
 
-    void update_lights_go();
-
-    void update_lights_red();
-
-    void update_blinking_yellow();
-
     void update() override;
 
     void draw_car();
@@ -57,30 +51,13 @@ class MainController : public engine::core::Controller {
 
     void end_draw() override;
 
-    void turn_off(PointLight &light);
-
-    void turn_on(PointLight &light, int color);
-
 public:
     std::string_view name() const override { return "app::MainController"; }
 
 private:
     DirLight m_directional_light;
-    PointLight m_red_point_light;
-    PointLight m_yellow_point_light;
-    PointLight m_green_point_light;
+    Semaphore m_semaphore;
 
-    bool transition_started = false;
-    bool transition_on = false;
-    float time_since_transition = 0.0f;
-
-    bool red_on = true;
-
-    bool blinking_yellow = false;
-    bool yellow_on = false;
-    std::chrono::steady_clock::time_point last_toggle_time;
-
-    int state = 0;
 };
 
 }// app
