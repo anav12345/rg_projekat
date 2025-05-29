@@ -50,10 +50,10 @@ in vec2 TexCoords;
 in vec3 Normal;
 in vec3 FragPos;
 
-uniform DirLight directionalLight;
-uniform PointLight redPointLight;
-uniform PointLight yellowPointLight;
-uniform PointLight greenPointLight;
+uniform DirLight directional_light;
+uniform PointLight red_point_light;
+uniform PointLight yellow_point_light;
+uniform PointLight green_point_light;
 uniform sampler2D texture_diffuse0;
 uniform sampler2D texture_specular0;
 uniform float material_shininess;
@@ -100,10 +100,10 @@ void main()
     vec3 normal = normalize(Normal);
     vec3 viewDir = normalize(viewPosition - FragPos);
 
-    vec3 result = CalcDirLight(directionalLight, normal, viewDir);
-    result += CalcPointLight(redPointLight, normal, FragPos, viewDir);
-    result += CalcPointLight(yellowPointLight, normal, FragPos, viewDir);
-    result += CalcPointLight(greenPointLight, normal, FragPos, viewDir);
+    vec3 result = CalcDirLight(directional_light, normal, viewDir);
+    result += CalcPointLight(red_point_light, normal, FragPos, viewDir);
+    result += CalcPointLight(yellow_point_light, normal, FragPos, viewDir);
+    result += CalcPointLight(green_point_light, normal, FragPos, viewDir);
 
     FragColor = vec4(result, 1.0);
 }

@@ -63,12 +63,13 @@ class MainController : public engine::core::Controller {
 
 public:
     std::string_view name() const override { return "app::MainController"; }
-    DirLight directionalLight;
-    PointLight redPointLight;
-    PointLight yellowPointLight;
-    PointLight greenPointLight;
 
 private:
+    DirLight m_directional_light;
+    PointLight m_red_point_light;
+    PointLight m_yellow_point_light;
+    PointLight m_green_point_light;
+
     bool transition_started = false;
     bool transition_on = false;
     float time_since_transition = 0.0f;
