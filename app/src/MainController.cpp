@@ -218,11 +218,65 @@ void MainController::draw_traffic_light() {
     traffic_light->draw(shader);
 }
 
+void MainController::draw_asphalt() {
+    auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
+    auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
+
+    engine::resources::Model *asphalt = resources->model("asphalt");
+
+    engine::resources::Shader *shader = resources->shader("car");
+
+    shader->use();
+
+    shader->set_vec3("directional_light.direction", m_directional_light.direction);
+    shader->set_vec3("directional_light.ambient", m_directional_light.ambient);
+    shader->set_vec3("directional_light.diffuse", m_directional_light.diffuse);
+    shader->set_vec3("directional_light.specular", m_directional_light.specular);
+
+    shader->set_float("material_shininess", 32.0f);
+    shader->set_vec3("viewPosition", graphics->camera()->Position);
+
+    shader->set_vec3("red_point_light.position", m_semaphore.red_light.position);
+    shader->set_vec3("red_point_light.ambient", m_semaphore.red_light.ambient);
+    shader->set_vec3("red_point_light.diffuse", m_semaphore.red_light.diffuse);
+    shader->set_vec3("red_point_light.specular", m_semaphore.red_light.specular);
+    shader->set_float("red_point_light.constant", m_semaphore.red_light.constant);
+    shader->set_float("red_point_light.linear", m_semaphore.red_light.linear);
+    shader->set_float("red_point_light.quadratic", m_semaphore.red_light.quadratic);
+
+    shader->set_vec3("yellow_point_light.position", m_semaphore.yellow_light.position);
+    shader->set_vec3("yellow_point_light.ambient", m_semaphore.yellow_light.ambient);
+    shader->set_vec3("yellow_point_light.diffuse", m_semaphore.yellow_light.diffuse);
+    shader->set_vec3("yellow_point_light.specular", m_semaphore.yellow_light.specular);
+    shader->set_float("yellow_point_light.constant", m_semaphore.yellow_light.constant);
+    shader->set_float("yellow_point_light.linear", m_semaphore.yellow_light.linear);
+    shader->set_float("yellow_point_light.quadratic", m_semaphore.yellow_light.quadratic);
+
+    shader->set_vec3("green_point_light.position", m_semaphore.green_light.position);
+    shader->set_vec3("green_point_light.ambient", m_semaphore.green_light.ambient);
+    shader->set_vec3("green_point_light.diffuse", m_semaphore.green_light.diffuse);
+    shader->set_vec3("green_point_light.specular", m_semaphore.green_light.specular);
+    shader->set_float("green_point_light.constant", m_semaphore.green_light.constant);
+    shader->set_float("green_point_light.linear", m_semaphore.green_light.linear);
+    shader->set_float("green_point_light.quadratic", m_semaphore.green_light.quadratic);
+
+
+    shader->set_mat4("projection", graphics->projection_matrix());
+    shader->set_mat4("view", graphics->camera()->view_matrix());
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(0.0f, 9.4f, -5.0f));
+    model = glm::scale(model, glm::vec3(8.0f));
+    shader->set_mat4("model", model);
+
+    asphalt->draw(shader);
+}
+
 void MainController::begin_draw() { engine::graphics::OpenGL::clear_buffers(); }
 
 void MainController::draw() {
     draw_car();
     draw_traffic_light();
+    draw_asphalt();
 }
 
 void MainController::end_draw() {

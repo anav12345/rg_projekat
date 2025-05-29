@@ -8,6 +8,10 @@
       "traffic_light": {
         "path": "traffic_light/scene.gltf",
         "flip_uvs": true
+      },
+      "asphalt": {
+        "path": "asphalt_texture_3d_scan/scene.gltf",
+        "flip_uvs": true
       }
     }
   },

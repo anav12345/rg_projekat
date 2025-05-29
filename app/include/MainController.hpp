@@ -45,6 +45,8 @@ class MainController : public engine::core::Controller {
 
     void draw_traffic_light();
 
+    void draw_asphalt();
+
     void begin_draw() override;
 
     void draw() override;
