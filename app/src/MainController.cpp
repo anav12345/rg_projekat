@@ -3,6 +3,7 @@
 //
 
 #include <MainController.hpp>
+#include <engine/graphics/Framebuffer.hpp>
 
 #include <engine/graphics/GraphicsController.hpp>
 #include <engine/graphics/OpenGL.hpp>
@@ -42,6 +43,23 @@ void MainController::initialize() {
     // pointLights
     m_semaphore.initialize_lights();
 
+    // framebuffer
+    initialize_framebuffer();
+
+}
+
+void MainController::initialize_framebuffer() {
+    auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
+
+    m_fbo = engine::graphics::Framebuffer::create_framebuffer();
+    engine::graphics::Framebuffer::bind_framebuffer(m_fbo);
+    m_texture = engine::graphics::Framebuffer::create_texture();
+    engine::graphics::Framebuffer::bind_texture(m_texture);
+    engine::graphics::Framebuffer::setup_texture_for_framebuffer(platform->window()->width(), platform->window()->height(), m_texture);
+    engine::graphics::Framebuffer::create_renderbuffer(platform->window()->width(), platform->window()->height());
+    engine::graphics::Framebuffer::unbind_framebuffer();
+
+    m_quadVAO = engine::graphics::Framebuffer::create_quad();
 }
 
 bool MainController::loop() {
@@ -154,7 +172,7 @@ void MainController::draw_car() {
     shader->set_mat4("projection", graphics->projection_matrix());
     shader->set_mat4("view", graphics->camera()->view_matrix());
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(0.0f, 0.0f, -5.0f));
+    model = glm::translate(model, glm::vec3(0.0f, 0.1f, -5.0f));
     model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     model = glm::scale(model, glm::vec3(0.5f));
     shader->set_mat4("model", model);
@@ -271,12 +289,25 @@ void MainController::draw_asphalt() {
     asphalt->draw(shader);
 }
 
-void MainController::begin_draw() { engine::graphics::OpenGL::clear_buffers(); }
+void MainController::after_draw() {
+    engine::graphics::Framebuffer::after_scene_draw();
+
+    auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
+    engine::resources::Shader *shader = resources->shader("post_processing");
+    shader->use();
+    engine::graphics::Framebuffer::activate_texture(m_texture);
+    shader->set_int("screenTexture", 0);
+    engine::graphics::Framebuffer::draw_quad(m_quadVAO, m_texture);
+}
+
+void MainController::begin_draw() { engine::graphics::Framebuffer::before_scene_draw(m_fbo); }
 
 void MainController::draw() {
     draw_car();
     draw_traffic_light();
     draw_asphalt();
+
+    after_draw();
 }
 
 void MainController::end_draw() {

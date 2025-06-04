@@ -33,6 +33,8 @@ struct PointLight {
 class MainController : public engine::core::Controller {
     void initialize() override;
 
+    void initialize_framebuffer();
+
     bool loop() override;
 
     void poll_events() override;
@@ -47,6 +49,8 @@ class MainController : public engine::core::Controller {
 
     void draw_asphalt();
 
+    void after_draw();
+
     void begin_draw() override;
 
     void draw() override;
@@ -60,6 +64,10 @@ private:
     DirLight m_directional_light;
     Semaphore m_semaphore;
 
+    // za framebuffer
+    unsigned int m_fbo;
+    unsigned int m_texture;
+    unsigned int m_quadVAO;
 };
 
 }// app
