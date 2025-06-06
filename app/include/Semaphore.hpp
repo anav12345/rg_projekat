@@ -20,36 +20,46 @@ struct PointLight {
 };
 
 namespace app {
+
+enum class SemaphoreState {
+    RED,
+    TRANSITIONING_TO_GREEN,
+    GREEN,
+    BLINKING_YELLOW
+};
+
 class Semaphore {
 
 public:
     void initialize_lights();
 
-    void turn_on(PointLight &light, int color);
+    void on_key_pressed(char key);
 
-    void turn_off(PointLight &light);
-
-    void transition_from_red_to_green();
-
-    void set_to_red();
-
-    void set_to_blinking_yellow();
+    void update();
 
     PointLight red_light;
     PointLight yellow_light;
     PointLight green_light;
 
-    bool transition_started = false;
-    bool transition_on = false;
-    float time_since_transition = 0.0f;
+    // state for shader
+    int color_state = 0;
 
-    bool red_on = true;
+private:
+    void turn_on(PointLight &light, int color);
 
-    bool blinking_yellow = false;
+    void turn_off(PointLight &light);
+
+    void set_state(SemaphoreState new_state);
+
+    void start_transition_to_green();
+
+    SemaphoreState current_state = SemaphoreState::RED;
+
+    float transition_timer = 0.0f;
     bool yellow_on = false;
     std::chrono::steady_clock::time_point last_toggle_time;
 
-    int state = 0;
+    bool yellow_blink_state = false;
 
 };
 }

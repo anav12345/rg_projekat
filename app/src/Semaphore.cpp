@@ -36,6 +36,57 @@ void Semaphore::initialize_lights() {
     green_light.quadratic = 0.09f;
 }
 
+void Semaphore::on_key_pressed(char key) {
+    if (current_state == SemaphoreState::TRANSITIONING_TO_GREEN) {
+        spdlog::info("tranzicija u toku, taster ignorisan....");
+        return;
+    }
+
+    switch (key) {
+        case 'R': set_state(SemaphoreState::RED);
+            break;
+        case 'G': start_transition_to_green();
+            break;
+        case 'Y': set_state(SemaphoreState::BLINKING_YELLOW);
+            break;
+    }
+}
+
+void Semaphore::update() {
+    auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
+    float dt = platform->dt();
+
+    if (current_state == SemaphoreState::TRANSITIONING_TO_GREEN) {
+        transition_timer += dt;
+
+        if (transition_timer >= 1.0f && !yellow_on) {
+            turn_on(yellow_light, 1);
+            yellow_on = true;
+            color_state = 3;
+        }
+
+        if (transition_timer >= 3.0f) {
+            set_state(SemaphoreState::GREEN);
+            spdlog::info("tranzicija gotova, upaljeno je zeleno.....");
+        }
+    }
+
+    if (current_state == SemaphoreState::BLINKING_YELLOW) {
+        auto now = std::chrono::steady_clock::now();
+        if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_toggle_time).count() > 500) {
+            yellow_blink_state = !yellow_blink_state;
+            if (yellow_blink_state) {
+                turn_on(yellow_light, 1);
+                color_state = 1;
+            } else {
+                turn_off(yellow_light);
+                color_state = -1;
+            }
+            last_toggle_time = now;
+        }
+    }
+}
+
 void Semaphore::turn_on(PointLight &light, int color) {
     // color => 0 - red, 1 - yellow, 2 - green
     light.ambient = glm::vec3(0.4f, 0.4f, 0.2f);
@@ -51,62 +102,34 @@ void Semaphore::turn_off(PointLight &light) {
     light.specular = glm::vec3(0.0f, 0.0f, 0.0f);
 }
 
-void Semaphore::transition_from_red_to_green() {
-    auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
-    float dt = platform->dt();
+void Semaphore::set_state(SemaphoreState new_state) {
+    current_state = new_state;
 
-    if (transition_on) {
-        if (!transition_started) {
-            transition_started = true;
-            time_since_transition = 0.0f;
-            turn_on(red_light, 0);
-            state = 0;
-            //turn_on(yellowPointLight, 1);
-            spdlog::info("red on ,wait for 3 second......");
-        }
+    turn_off(red_light);
+    turn_off(yellow_light);
+    turn_off(green_light);
 
-        if (transition_started) {
-            time_since_transition += dt;
-
-            if (time_since_transition >= 1.0f) {
-                turn_on(yellow_light, 1);
-                state = 3;
-            }
-
-            if (time_since_transition >= 3.0f) {
-                transition_started = false;
-                turn_off(red_light);
-                turn_off(yellow_light);
-                turn_on(green_light, 2);
-                state = 2;
-                spdlog::info("3 seconds passed, green on....");
-                transition_on = false;
-            }
-        }
-    }
-}
-
-void Semaphore::set_to_red() {
-    if (red_on) {
+    if (new_state == SemaphoreState::RED) {
         turn_on(red_light, 0);
-        state = 0;
+        color_state = 0;
+    } else if (new_state == SemaphoreState::GREEN) {
+        turn_on(green_light, 2);
+        color_state = 2;
+    } else if (new_state == SemaphoreState::BLINKING_YELLOW) {
+        turn_on(yellow_light, 1);
+        color_state = 1;
+        yellow_blink_state = true;
+        last_toggle_time = std::chrono::steady_clock::now();
     }
 }
 
-void Semaphore::set_to_blinking_yellow() {
-    if (blinking_yellow) {
-        auto now = std::chrono::steady_clock::now();
-        if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_toggle_time).count() > 500) {
-            yellow_on = !yellow_on;
-            if (yellow_on) {
-                turn_on(yellow_light, 1);
-                state = 1;
-            } else {
-                turn_off(yellow_light);
-                state = -1;
-            }
-            last_toggle_time = now;
-        }
-    }
+void Semaphore::start_transition_to_green() {
+    set_state(SemaphoreState::TRANSITIONING_TO_GREEN);
+    turn_on(red_light, 0);
+    color_state = 0;
+    transition_timer = 0.0f;
+    yellow_on = false;
+    spdlog::info("tranzicija pocinje....");
 }
+
 }

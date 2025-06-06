@@ -57,37 +57,12 @@ bool MainController::loop() {
 void MainController::poll_events() {
     auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
 
-    if (platform->key(engine::platform::KeyId::KEY_G).state() == engine::platform::Key::State::JustPressed && !m_semaphore.transition_started) {
-        m_semaphore.turn_off(m_semaphore.green_light);
-        m_semaphore.turn_off(m_semaphore.yellow_light);
-        m_semaphore.turn_on(m_semaphore.red_light, 0);
+    if (platform->key(engine::platform::KeyId::KEY_G).state() == engine::platform::Key::State::JustPressed) { m_semaphore.on_key_pressed('G'); }
 
-        m_semaphore.transition_on = true;
-        m_semaphore.red_on = false;
-        m_semaphore.blinking_yellow = false;
-    }
-    if (platform->key(engine::platform::KeyId::KEY_R).state() == engine::platform::Key::State::JustPressed && !m_semaphore.transition_started) {
-        m_semaphore.turn_off(m_semaphore.green_light);
-        m_semaphore.turn_off(m_semaphore.yellow_light);
+    if (platform->key(engine::platform::KeyId::KEY_R).state() == engine::platform::Key::State::JustPressed) { m_semaphore.on_key_pressed('R'); }
 
-        m_semaphore.transition_on = false;
-        m_semaphore.red_on = true;
-        m_semaphore.blinking_yellow = false;
-    }
+    if (platform->key(engine::platform::KeyId::KEY_Y).state() == engine::platform::Key::State::JustPressed) { m_semaphore.on_key_pressed('Y'); }
 
-    if (platform->key(engine::platform::KeyId::KEY_Y).state() == engine::platform::Key::State::JustPressed && !m_semaphore.transition_started && !m_semaphore.blinking_yellow) {
-        m_semaphore.turn_off(m_semaphore.red_light);
-        m_semaphore.turn_off(m_semaphore.green_light);
-
-        m_semaphore.turn_on(m_semaphore.yellow_light, 1);
-        m_semaphore.state = 1;
-
-        m_semaphore.transition_on = false;
-        m_semaphore.red_on = false;
-        m_semaphore.blinking_yellow = true;
-        m_semaphore.yellow_on = true;
-        m_semaphore.last_toggle_time = std::chrono::steady_clock::now();
-    }
 }
 
 void MainController::update_camera() {
@@ -106,10 +81,7 @@ void MainController::update_camera() {
 void MainController::update() {
     update_camera();
 
-    m_semaphore.transition_from_red_to_green();
-    m_semaphore.set_to_red();
-    m_semaphore.set_to_blinking_yellow();
-
+    m_semaphore.update();
 }
 
 void MainController::draw_car() {
@@ -206,7 +178,7 @@ void MainController::draw_traffic_light() {
     shader->set_float("green_point_light.linear", m_semaphore.green_light.linear);
     shader->set_float("green_point_light.quadratic", m_semaphore.green_light.quadratic);
 
-    shader->set_int("state", m_semaphore.state);
+    shader->set_int("state", m_semaphore.color_state);
 
 
     shader->set_mat4("projection", graphics->projection_matrix());
