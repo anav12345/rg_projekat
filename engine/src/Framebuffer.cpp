@@ -80,7 +80,7 @@ void Framebuffer::draw_quad(unsigned int quadVAO, unsigned int texture) {
     CHECKED_GL_CALL(glBindVertexArray, 0);
 }
 
-void Framebuffer::before_scene_draw(unsigned int fbo) {
+void Framebuffer::redirect_to_my_framebuffer(unsigned int fbo) {
     // preusmeravam crtanje u moj framebuffer umesto podrazumevanog
     bind_framebuffer(fbo);
     CHECKED_GL_CALL(glEnable, GL_DEPTH_TEST);
@@ -88,7 +88,7 @@ void Framebuffer::before_scene_draw(unsigned int fbo) {
     CHECKED_GL_CALL(glClear, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void Framebuffer::after_scene_draw() {
+void Framebuffer::redirect_to_default_framebuffer() {
     // vracam na podrazumevani framebuffer kako bi se slika prikazala na ekranu
     unbind_framebuffer();
     CHECKED_GL_CALL(glDisable, GL_DEPTH_TEST);
@@ -100,5 +100,32 @@ void Framebuffer::activate_texture(unsigned int texture) {
     // moram da aktiviram napravljenu teksturu pre nego sto nacrtam quad
     CHECKED_GL_CALL(glActiveTexture, GL_TEXTURE0);
     CHECKED_GL_CALL(glBindTexture, GL_TEXTURE_2D, texture);
+}
+
+void Framebuffer::initialize_framebuffer(unsigned int &fbo, unsigned int &texture, unsigned int &quadVAO, int scr_width, int scr_height) {
+    fbo = create_framebuffer();
+    bind_framebuffer(fbo);
+
+    texture = create_texture();
+    bind_texture(texture);
+    setup_texture_for_framebuffer(scr_width, scr_height, texture);
+
+    create_renderbuffer(scr_width, scr_height);
+
+    unbind_framebuffer();
+
+    quadVAO = create_quad();
+}
+
+void Framebuffer::before_draw(unsigned int fbo) { redirect_to_my_framebuffer(fbo); }
+
+void Framebuffer::after_draw(unsigned int texture, unsigned int quadVAO, resources::Shader *shader) {
+    redirect_to_default_framebuffer();
+
+    shader->use();
+    activate_texture(texture);
+    shader->set_int("screenTexture", 0);
+
+    draw_quad(quadVAO, texture);
 }
 }

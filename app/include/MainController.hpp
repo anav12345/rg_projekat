@@ -33,8 +33,6 @@ struct PointLight {
 class MainController : public engine::core::Controller {
     void initialize() override;
 
-    void initialize_framebuffer();
-
     bool loop() override;
 
     void poll_events() override;
