@@ -6,7 +6,9 @@
 #define MAINCONTROLLER_HPP
 #include <Semaphore.hpp>
 #include <engine/core/Controller.hpp>
+#include <glm/fwd.hpp>
 #include <glm/vec3.hpp>
+#include <glm/mat4x4.hpp>
 
 namespace app {
 
@@ -51,6 +53,12 @@ class MainController : public engine::core::Controller {
 
     void begin_draw() override;
 
+    void draw_car_shadows();
+
+    void draw_traffic_light_shadows();
+
+    void draw_asphalt_shadows();
+
     void draw() override;
 
     void end_draw() override;
@@ -66,6 +74,11 @@ private:
     unsigned int m_fbo;
     unsigned int m_texture;
     unsigned int m_quadVAO;
+
+    // za senke
+    unsigned int m_depth_fbo;
+    unsigned int m_depth_cubemap;
+    std::vector<glm::mat4> shadowTransforms;
 };
 
 }// app
