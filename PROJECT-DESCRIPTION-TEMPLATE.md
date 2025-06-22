@@ -31,7 +31,7 @@ ESC -> CLOSE WINDOW
 
 ### Group A:
 
-[ ] Frame-buffers with post-processing   
+[X] Frame-buffers with post-processing   
 [ ] Instancing  
 [ ] Off-screen Anti-Aliasing  
 [ ] Parallax Mapping
@@ -40,20 +40,20 @@ ESC -> CLOSE WINDOW
 
 [ ] Bloom with the use of HDR  
 [ ] Deferred Shading  
-[ ] Point Shadows  
+[X] Point Shadows  
 [ ] SSAO
 
 ### Engine improvement:
 
-[ ] ...
+[ ]
 
 ## Models:
 
 [https://sketchfab.com/3d-models/traffic-light-321e93bc36af4531b350febcfefee621]   
 [https://www.fab.com/listings/2e0deaee-7104-4618-ab38-24fc36cdc6bf]
-
+[https://sketchfab.com/3d-models/asphalt-texture-3d-scan-ee52f7306e58449d9ec750d1b8b980f2]
 ## Textures
 
 []
 
-{OTHER-RESOURCES}
+
