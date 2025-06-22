@@ -4,6 +4,7 @@
 
 #include <MainController.hpp>
 #include <engine/graphics/Framebuffer.hpp>
+#include <engine/graphics/PointShadows.hpp>
 
 #include <engine/graphics/GraphicsController.hpp>
 #include <engine/graphics/OpenGL.hpp>
@@ -35,16 +36,19 @@ void MainController::initialize() {
     platform->set_enable_cursor(false);
 
     // dirLight
-    m_directional_light.direction = glm::vec3(0.0f, -8.0f, -5.0f);
-    m_directional_light.ambient = glm::vec3(0.05f);
-    m_directional_light.diffuse = glm::vec3(1.0f, 0.7843f, 0.3921f) * 0.5f;
+    m_directional_light.direction = glm::vec3(0.0f, -8.0f, 0.0f);
+    m_directional_light.ambient = glm::vec3(0.03f);
+    m_directional_light.diffuse = glm::vec3(1.0f, 0.7843f, 0.3921f) * 0.7f;
     m_directional_light.specular = glm::vec3(0.2f, 0.2f, 0.2f) * 0.5f;
 
     // pointLights
     m_semaphore.initialize_lights();
 
-    // framebuffer
+    // framebuffer za post-processing
     engine::graphics::Framebuffer::initialize_framebuffer(m_fbo, m_texture, m_quadVAO, platform->window()->width(), platform->window()->height());
+
+    // framebuffer za senke
+    engine::graphics::PointShadows::initialize_framebuffer(m_depth_map_fbo, m_depth_cubemap);
 }
 
 bool MainController::loop() {
@@ -133,6 +137,11 @@ void MainController::draw_car() {
     model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     model = glm::scale(model, glm::vec3(0.5f));
     shader->set_mat4("model", model);
+
+    // racunanje senki
+    engine::graphics::PointShadows::activate_cubemap_texture(m_depth_cubemap);
+    shader->set_int("depthMap", 1);
+    shader->set_float("far_plane", m_far_plane);
 
     car->draw(shader);
 }
@@ -243,6 +252,11 @@ void MainController::draw_asphalt() {
     model = glm::scale(model, glm::vec3(8.0f));
     shader->set_mat4("model", model);
 
+    // racunanje senki
+    engine::graphics::PointShadows::activate_cubemap_texture(m_depth_cubemap);
+    shader->set_int("depthMap", 1);
+    shader->set_float("far_plane", m_far_plane);
+
     asphalt->draw(shader);
 }
 
@@ -253,7 +267,43 @@ void MainController::after_draw() {
 
 }
 
-void MainController::begin_draw() { engine::graphics::Framebuffer::before_draw(m_fbo); }
+void MainController::shadow_pass() {
+    auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
+    auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
+    engine::resources::Shader *depthShader = resources->shader("depth");
+
+    // kreiram vektor za modele i model matrice
+    std::vector<std::pair<engine::resources::Model *, glm::mat4> > models;
+
+    // model auta i njegova model matrica
+    engine::resources::Model *car = resources->model("car");
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(0.0f, 0.1f, -5.0f));
+    model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.5f));
+    models.emplace_back(car, model);
+
+    // model asfalta i njegova model matrica
+    engine::resources::Model *asphalt = resources->model("asphalt");
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(0.0f, 9.4f, -5.0f));
+    model = glm::scale(model, glm::vec3(8.0f));
+    models.emplace_back(asphalt, model);
+
+    glm::vec3 light_position = m_semaphore.light_pos;
+    int scr_width = platform->window()->width();
+    int scr_height = platform->window()->height();
+
+    engine::graphics::PointShadows::shadow_pass(m_depth_map_fbo, m_depth_cubemap, depthShader, light_position, m_near_plane, m_far_plane, scr_width, scr_height, models);
+
+}
+
+void MainController::before_draw() { engine::graphics::Framebuffer::before_draw(m_fbo); }
+
+void MainController::begin_draw() {
+    shadow_pass();
+    before_draw();
+}
 
 void MainController::draw() {
     draw_car();

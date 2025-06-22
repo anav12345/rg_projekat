@@ -49,6 +49,10 @@ class MainController : public engine::core::Controller {
 
     void after_draw();
 
+    void shadow_pass();
+
+    void before_draw();
+
     void begin_draw() override;
 
     void draw() override;
@@ -66,6 +70,12 @@ private:
     unsigned int m_fbo;
     unsigned int m_texture;
     unsigned int m_quadVAO;
+
+    // za senke
+    unsigned int m_depth_map_fbo;
+    unsigned int m_depth_cubemap;
+    float m_far_plane = 25.0;
+    float m_near_plane = 1.0f;
 };
 
 }// app
