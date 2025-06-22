@@ -59,6 +59,42 @@ uniform sampler2D texture_specular0;
 uniform float material_shininess;
 uniform vec3 viewPosition;
 
+uniform samplerCube depthMap;
+uniform float far_plane;
+
+
+vec3 gridSamplingDisk[20] = vec3[]
+(
+   vec3(1, 1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1, 1,  1),
+   vec3(1, 1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1, 1, -1),
+   vec3(1, 1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1, 1,  0),
+   vec3(1, 0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1, 0, -1),
+   vec3(0, 1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0, 1, -1)
+);
+
+
+float ShadowCalculation(vec3 fragPos, vec3 lightPos)
+{
+    vec3 fragToLight = fragPos - lightPos;
+    float currentDepth = length(fragToLight);
+
+    float shadow = 0.0;
+        float bias = 0.15;
+        int samples = 20;
+        float viewDistance = length(viewPosition - fragPos);
+        float diskRadius = (1.0 + (viewDistance / far_plane)) / 25.0;
+        for(int i = 0; i < samples; ++i)
+        {
+            float closestDepth = texture(depthMap, fragToLight + gridSamplingDisk[i] * diskRadius).r;
+            closestDepth *= far_plane;
+            if(currentDepth - bias > closestDepth)
+                shadow += 1.0;
+        }
+        shadow /= float(samples);
+
+        return shadow;
+}
+
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
 {
     vec3 lightDir = normalize(-light.direction);
@@ -85,6 +121,8 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     // attenuation
     float distance = length(light.position - fragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+    // shadow calculation
+    float shadow = ShadowCalculation(fragPos, light.position);
     // combine results
     vec3 ambient = light.ambient * vec3(texture(texture_diffuse0, TexCoords));
     vec3 diffuse = light.diffuse * diff * vec3(texture(texture_diffuse0, TexCoords));
@@ -92,6 +130,11 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     ambient *= attenuation;
     diffuse *= attenuation;
     specular *= attenuation;
+
+    ambient *= (1.0 - shadow * 0.7);
+    diffuse *= (1.0 - shadow);
+    specular *= (1.0 - shadow);
+
     return (ambient + diffuse + specular);
 }
 
