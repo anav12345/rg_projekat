@@ -44,6 +44,9 @@ public:
     // state for shader
     int color_state = 0;
 
+    // active light for shadows
+    glm::vec3 light_pos;
+
 private:
     void turn_on(PointLight &light, int color);
 

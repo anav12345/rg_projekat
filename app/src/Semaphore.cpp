@@ -34,6 +34,8 @@ void Semaphore::initialize_lights() {
     green_light.constant = 1.0f;
     green_light.linear = 0.09f;
     green_light.quadratic = 0.09f;
+
+    light_pos = glm::vec3(4.5, 4.7, -3.5);
 }
 
 void Semaphore::on_key_pressed(char key) {
