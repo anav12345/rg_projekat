@@ -4,7 +4,6 @@
 
 #ifndef MAINCONTROLLER_HPP
 #define MAINCONTROLLER_HPP
-#include <Semaphore.hpp>
 #include <engine/core/Controller.hpp>
 #include <engine/graphics/Framebuffer.hpp>
 #include <engine/graphics/PointShadows.hpp>
@@ -66,7 +65,6 @@ public:
 
 private:
     DirLight m_directional_light;
-    Semaphore m_semaphore;
 
     // framebuffer za post-processing
     engine::graphics::Framebuffer m_framebuffer;

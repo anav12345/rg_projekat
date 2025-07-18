@@ -1,14 +1,17 @@
 //
-// Created by ana on 5/29/25.
+// Created by ana on 7/18/25.
 //
 
-#include <Semaphore.hpp>
+#include <SemaphoreController.hpp>
 #include <engine/core/Controller.hpp>
 #include <engine/platform/PlatformController.hpp>
 #include <spdlog/spdlog.h>
 
 namespace app {
-void Semaphore::initialize_lights() {
+
+void SemaphoreController::initialize() {
+    spdlog::info("SemaphoreController initialized!");
+
     red_light.position = glm::vec3(4.5, 4.7, -3.5);
     red_light.ambient = glm::vec3(0.4, 0.4, 0.2);
     red_light.diffuse = glm::vec3(2.0, 0.0, 0.0);
@@ -38,23 +41,17 @@ void Semaphore::initialize_lights() {
     light_pos = glm::vec3(4.5, 4.7, -3.5);
 }
 
-void Semaphore::on_key_pressed(char key) {
-    if (current_state == SemaphoreState::TRANSITIONING_TO_GREEN) {
-        spdlog::info("tranzicija u toku, taster ignorisan....");
-        return;
-    }
+void SemaphoreController::poll_events() {
+    auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
 
-    switch (key) {
-        case 'R': set_state(SemaphoreState::RED);
-            break;
-        case 'G': start_transition_to_green();
-            break;
-        case 'Y': set_state(SemaphoreState::BLINKING_YELLOW);
-            break;
-    }
+    if (platform->key(engine::platform::KeyId::KEY_G).state() == engine::platform::Key::State::JustPressed) { on_key_pressed('G'); }
+
+    if (platform->key(engine::platform::KeyId::KEY_R).state() == engine::platform::Key::State::JustPressed) { on_key_pressed('R'); }
+
+    if (platform->key(engine::platform::KeyId::KEY_Y).state() == engine::platform::Key::State::JustPressed) { on_key_pressed('Y'); }
 }
 
-void Semaphore::update() {
+void SemaphoreController::update() {
     auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
     float dt = platform->dt();
 
@@ -89,7 +86,33 @@ void Semaphore::update() {
     }
 }
 
-void Semaphore::turn_on(PointLight &light, int color) {
+PointLight SemaphoreController::get_red_point_light() { return red_light; }
+
+PointLight SemaphoreController::get_yellow_point_light() { return yellow_light; }
+
+PointLight SemaphoreController::get_green_point_light() { return green_light; }
+
+int SemaphoreController::get_color_state() { return color_state; }
+
+glm::vec3 SemaphoreController::get_light_pos() { return light_pos; }
+
+void SemaphoreController::on_key_pressed(char key) {
+    if (current_state == SemaphoreState::TRANSITIONING_TO_GREEN) {
+        spdlog::info("tranzicija u toku, taster ignorisan....");
+        return;
+    }
+
+    switch (key) {
+        case 'R': set_state(SemaphoreState::RED);
+            break;
+        case 'G': start_transition_to_green();
+            break;
+        case 'Y': set_state(SemaphoreState::BLINKING_YELLOW);
+            break;
+    }
+}
+
+void SemaphoreController::turn_on(PointLight &light, int color) {
     // color => 0 - red, 1 - yellow, 2 - green
     light.ambient = glm::vec3(0.4f, 0.4f, 0.2f);
     light.specular = glm::vec3(0.5f, 0.5f, 0.5f);
@@ -98,13 +121,13 @@ void Semaphore::turn_on(PointLight &light, int color) {
 
 }
 
-void Semaphore::turn_off(PointLight &light) {
+void SemaphoreController::turn_off(PointLight &light) {
     light.ambient = glm::vec3(0.0f, 0.0f, 0.0f);
     light.diffuse = glm::vec3(0.0f, 0.0f, 0.0f);
     light.specular = glm::vec3(0.0f, 0.0f, 0.0f);
 }
 
-void Semaphore::set_state(SemaphoreState new_state) {
+void SemaphoreController::set_state(SemaphoreState new_state) {
     current_state = new_state;
 
     turn_off(red_light);
@@ -125,7 +148,7 @@ void Semaphore::set_state(SemaphoreState new_state) {
     }
 }
 
-void Semaphore::start_transition_to_green() {
+void SemaphoreController::start_transition_to_green() {
     set_state(SemaphoreState::TRANSITIONING_TO_GREEN);
     turn_on(red_light, 0);
     color_state = 0;
