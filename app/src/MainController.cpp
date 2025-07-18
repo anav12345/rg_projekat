@@ -48,7 +48,7 @@ void MainController::initialize() {
     m_framebuffer.initialize_framebuffer(platform->window()->width(), platform->window()->height());
 
     // framebuffer za senke
-    engine::graphics::PointShadows::initialize_framebuffer(m_depth_map_fbo, m_depth_cubemap);
+    m_point_shadows.initialize_framebuffer();
 }
 
 bool MainController::loop() {
@@ -139,9 +139,9 @@ void MainController::draw_car() {
     shader->set_mat4("model", model);
 
     // racunanje senki
-    engine::graphics::PointShadows::activate_cubemap_texture(m_depth_cubemap);
+    m_point_shadows.activate_cubemap_texture();
     shader->set_int("depthMap", 1);
-    shader->set_float("far_plane", m_far_plane);
+    shader->set_float("far_plane", m_point_shadows.far_plane);
 
     car->draw(shader);
 }
@@ -253,9 +253,9 @@ void MainController::draw_asphalt() {
     shader->set_mat4("model", model);
 
     // racunanje senki
-    engine::graphics::PointShadows::activate_cubemap_texture(m_depth_cubemap);
+    m_point_shadows.activate_cubemap_texture();
     shader->set_int("depthMap", 1);
-    shader->set_float("far_plane", m_far_plane);
+    shader->set_float("far_plane", m_point_shadows.far_plane);
 
     asphalt->draw(shader);
 }
@@ -287,8 +287,7 @@ void MainController::shadow_pass() {
     int scr_width = platform->window()->width();
     int scr_height = platform->window()->height();
 
-    engine::graphics::PointShadows::shadow_pass(m_depth_map_fbo, m_depth_cubemap, depthShader, light_position, m_near_plane, m_far_plane, scr_width, scr_height, models);
-
+    m_point_shadows.shadow_pass(depthShader, light_position, scr_width, scr_height, models);
 }
 
 void MainController::before_draw() { m_framebuffer.before_draw(); }

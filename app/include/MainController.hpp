@@ -7,6 +7,7 @@
 #include <Semaphore.hpp>
 #include <engine/core/Controller.hpp>
 #include <engine/graphics/Framebuffer.hpp>
+#include <engine/graphics/PointShadows.hpp>
 #include <glm/vec3.hpp>
 
 namespace app {
@@ -71,10 +72,7 @@ private:
     engine::graphics::Framebuffer m_framebuffer;
 
     // za senke
-    unsigned int m_depth_map_fbo;
-    unsigned int m_depth_cubemap;
-    float m_far_plane = 25.0;
-    float m_near_plane = 1.0f;
+    engine::graphics::PointShadows m_point_shadows;
 };
 
 }// app
