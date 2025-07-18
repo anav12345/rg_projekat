@@ -6,6 +6,7 @@
 #define MAINCONTROLLER_HPP
 #include <Semaphore.hpp>
 #include <engine/core/Controller.hpp>
+#include <engine/graphics/Framebuffer.hpp>
 #include <glm/vec3.hpp>
 
 namespace app {
@@ -47,11 +48,11 @@ class MainController : public engine::core::Controller {
 
     void draw_asphalt();
 
-    void after_draw();
-
     void shadow_pass();
 
     void before_draw();
+
+    void after_draw();
 
     void begin_draw() override;
 
@@ -66,10 +67,8 @@ private:
     DirLight m_directional_light;
     Semaphore m_semaphore;
 
-    // za framebuffer
-    unsigned int m_fbo;
-    unsigned int m_texture;
-    unsigned int m_quadVAO;
+    // framebuffer za post-processing
+    engine::graphics::Framebuffer m_framebuffer;
 
     // za senke
     unsigned int m_depth_map_fbo;

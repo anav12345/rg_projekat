@@ -45,7 +45,7 @@ void MainController::initialize() {
     m_semaphore.initialize_lights();
 
     // framebuffer za post-processing
-    engine::graphics::Framebuffer::initialize_framebuffer(m_fbo, m_texture, m_quadVAO, platform->window()->width(), platform->window()->height());
+    m_framebuffer.initialize_framebuffer(platform->window()->width(), platform->window()->height());
 
     // framebuffer za senke
     engine::graphics::PointShadows::initialize_framebuffer(m_depth_map_fbo, m_depth_cubemap);
@@ -260,13 +260,6 @@ void MainController::draw_asphalt() {
     asphalt->draw(shader);
 }
 
-void MainController::after_draw() {
-    auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
-    engine::resources::Shader *shader = resources->shader("post_processing");
-    engine::graphics::Framebuffer::after_draw(m_texture, m_quadVAO, shader);
-
-}
-
 void MainController::shadow_pass() {
     auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
     auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
@@ -298,7 +291,14 @@ void MainController::shadow_pass() {
 
 }
 
-void MainController::before_draw() { engine::graphics::Framebuffer::before_draw(m_fbo); }
+void MainController::before_draw() { m_framebuffer.before_draw(); }
+
+void MainController::after_draw() {
+    auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
+    engine::resources::Shader *shader = resources->shader("post_processing");
+    m_framebuffer.after_draw(shader);
+
+}
 
 void MainController::begin_draw() {
     shadow_pass();

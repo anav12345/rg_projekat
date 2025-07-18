@@ -8,38 +8,41 @@
 
 namespace engine::graphics {
     class Framebuffer {
-    private:
-        static unsigned int create_framebuffer();
-
-        static void bind_framebuffer(unsigned int fbo);
-
-        static unsigned int create_texture();
-
-        static void bind_texture(unsigned int texture);
-
-        static void setup_texture_for_framebuffer(int scr_width, int scr_height, unsigned int texture);
-
-        static void create_renderbuffer(int scr_width, int scr_height);
-
-        static void unbind_framebuffer();
-
-        static unsigned int create_quad();
-
-        static void draw_quad(unsigned int quadVAO, unsigned int texture);
-
-        static void redirect_to_my_framebuffer(unsigned int fbo);
-
-        static void redirect_to_default_framebuffer();
-
-        static void activate_texture(unsigned int texture);
-
     public:
-        static void initialize_framebuffer(unsigned int &fbo, unsigned int &texture, unsigned int &quadVAO,
-                                           int scr_width, int scr_height);
+        void initialize_framebuffer(int scr_width, int scr_height);
 
-        static void before_draw(unsigned int fbo);
+        void before_draw();
 
-        static void after_draw(unsigned int texture, unsigned int quadVAO, resources::Shader *shader);
+        void after_draw(resources::Shader *shader);
+
+    private:
+        unsigned int fbo;
+        unsigned int texture;
+        unsigned int quadVAO;
+
+        unsigned int create_framebuffer();
+
+        void bind_framebuffer();
+
+        unsigned int create_texture();
+
+        void bind_texture();
+
+        void setup_texture_for_framebuffer(int scr_width, int scr_height);
+
+        void create_renderbuffer(int scr_width, int scr_height);
+
+        void unbind_framebuffer();
+
+        unsigned int create_quad();
+
+        void draw_quad(unsigned int quadVAO);
+
+        void redirect_to_my_framebuffer();
+
+        void redirect_to_default_framebuffer();
+
+        void activate_texture();
     };
 }
 #endif //FRAMEBUFFER_HPP
