@@ -1,6 +1,18 @@
 {
   "resources": {
     "models": {
+      "car": {
+        "path": "morris-minor/source/ElderStreetOldCar03/ElderStreetOldCar03.obj",
+        "flip_uvs": true
+      },
+      "traffic_light": {
+        "path": "traffic_light/scene.gltf",
+        "flip_uvs": true
+      },
+      "asphalt": {
+        "path": "asphalt_texture_3d_scan/scene.gltf",
+        "flip_uvs": true
+      }
     }
   },
   "window": {
