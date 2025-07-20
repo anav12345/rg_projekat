@@ -23,9 +23,9 @@ namespace engine::graphics {
     private:
         unsigned int m_depth_map_fbo;
         unsigned int m_depth_cubemap;
-        float near_plane                 = 1.0f;
-        const unsigned int SHADOW_WIDTH  = 1024;
-        const unsigned int SHADOW_HEIGHT = 1024;
+        float m_near_plane                 = 1.0f;
+        const unsigned int m_shadow_width  = 1024;
+        const unsigned int m_shadow_height = 1024;
 
         unsigned int create_framebuffer();
 
@@ -41,7 +41,7 @@ namespace engine::graphics {
 
         std::vector<glm::mat4> create_transformation_matrices(glm::vec3 light_position);
 
-        void setup_shader_and_render(resources::Shader *shader, std::vector<glm::mat4> shadowTransforms,
+        void setup_shader_and_render(resources::Shader *shader, std::vector<glm::mat4> shadow_transforms,
                                      glm::vec3 light_position,
                                      std::vector<std::pair<engine::resources::Model *, glm::mat4> > models);
     };

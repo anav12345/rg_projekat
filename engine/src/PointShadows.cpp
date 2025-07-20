@@ -26,7 +26,7 @@ void PointShadows::initialize_framebuffer() {
 void PointShadows::shadow_pass(resources::Shader *depth_shader, glm::vec3 light_position, int scr_width, int scr_height, std::vector<std::pair<engine::resources::Model *, glm::mat4> > models) {
     // enable depth test zbog post-processinga koji radi disable
     CHECKED_GL_CALL(glEnable, GL_DEPTH_TEST);
-    CHECKED_GL_CALL(glViewport, 0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+    CHECKED_GL_CALL(glViewport, 0, 0, m_shadow_width, m_shadow_height);
     bind_framebuffer();
     CHECKED_GL_CALL(glClear, GL_DEPTH_BUFFER_BIT);
 
@@ -62,7 +62,7 @@ void PointShadows::bind_cubemap_texture() { CHECKED_GL_CALL(glBindTexture, GL_TE
 void PointShadows::setup_cubemap() {
     bind_cubemap_texture();
 
-    for (unsigned int i = 0; i < 6; ++i) { CHECKED_GL_CALL(glTexImage2D, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr); }
+    for (unsigned int i = 0; i < 6; ++i) { CHECKED_GL_CALL(glTexImage2D, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, m_shadow_width, m_shadow_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr); }
 
     CHECKED_GL_CALL(glTexParameteri, GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     CHECKED_GL_CALL(glTexParameteri, GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -78,7 +78,7 @@ void PointShadows::setup_cubemap() {
 }
 
 std::vector<glm::mat4> PointShadows::create_transformation_matrices(glm::vec3 light_position) {
-    glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), 1.0f, near_plane, far_plane);
+    glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), 1.0f, m_near_plane, far_plane);
     std::vector<glm::mat4> shadowTransforms;
     shadowTransforms.reserve(6);
 
@@ -92,9 +92,9 @@ std::vector<glm::mat4> PointShadows::create_transformation_matrices(glm::vec3 li
     return shadowTransforms;
 }
 
-void PointShadows::setup_shader_and_render(resources::Shader *shader, std::vector<glm::mat4> shadowTransforms, glm::vec3 light_position, std::vector<std::pair<engine::resources::Model *, glm::mat4> > models) {
+void PointShadows::setup_shader_and_render(resources::Shader *shader, std::vector<glm::mat4> shadow_transforms, glm::vec3 light_position, std::vector<std::pair<engine::resources::Model *, glm::mat4> > models) {
 
-    for (unsigned int i = 0; i < 6; ++i) { shader->set_mat4("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]); }
+    for (unsigned int i = 0; i < 6; ++i) { shader->set_mat4("shadowMatrices[" + std::to_string(i) + "]", shadow_transforms[i]); }
     shader->set_vec3("lightPos", light_position);
     shader->set_float("far_plane", far_plane);
 
