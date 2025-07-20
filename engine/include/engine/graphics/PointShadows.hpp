@@ -21,8 +21,8 @@ namespace engine::graphics {
                          std::vector<std::pair<engine::resources::Model *, glm::mat4> > models);
 
     private:
-        unsigned int depthMapFBO;
-        unsigned int depthCubemap;
+        unsigned int m_depth_map_fbo;
+        unsigned int m_depth_cubemap;
         float near_plane                 = 1.0f;
         const unsigned int SHADOW_WIDTH  = 1024;
         const unsigned int SHADOW_HEIGHT = 1024;

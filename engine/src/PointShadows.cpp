@@ -17,8 +17,8 @@ void PointShadows::activate_cubemap_texture() {
 void PointShadows::initialize_framebuffer() {
     CHECKED_GL_CALL(glEnable, GL_DEPTH_TEST);
 
-    depthMapFBO = create_framebuffer();
-    depthCubemap = create_cubemap_texture();
+    m_depth_map_fbo = create_framebuffer();
+    m_depth_cubemap = create_cubemap_texture();
 
     setup_cubemap();
 }
@@ -47,7 +47,7 @@ unsigned int PointShadows::create_framebuffer() {
     return depthMapFBO;
 }
 
-void PointShadows::bind_framebuffer() { CHECKED_GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, depthMapFBO); }
+void PointShadows::bind_framebuffer() { CHECKED_GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, m_depth_map_fbo); }
 
 void PointShadows::unbind_framebuffer() { CHECKED_GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, 0); }
 
@@ -57,7 +57,7 @@ unsigned int PointShadows::create_cubemap_texture() {
     return depthCubemap;
 }
 
-void PointShadows::bind_cubemap_texture() { CHECKED_GL_CALL(glBindTexture, GL_TEXTURE_CUBE_MAP, depthCubemap); }
+void PointShadows::bind_cubemap_texture() { CHECKED_GL_CALL(glBindTexture, GL_TEXTURE_CUBE_MAP, m_depth_cubemap); }
 
 void PointShadows::setup_cubemap() {
     bind_cubemap_texture();
@@ -71,7 +71,7 @@ void PointShadows::setup_cubemap() {
     CHECKED_GL_CALL(glTexParameteri, GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
     bind_framebuffer();
-    CHECKED_GL_CALL(glFramebufferTexture, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubemap, 0);
+    CHECKED_GL_CALL(glFramebufferTexture, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_depth_cubemap, 0);
     CHECKED_GL_CALL(glDrawBuffer, GL_NONE);
     CHECKED_GL_CALL(glReadBuffer, GL_NONE);
     unbind_framebuffer();

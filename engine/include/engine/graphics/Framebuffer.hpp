@@ -16,9 +16,9 @@ namespace engine::graphics {
         void after_draw(resources::Shader *shader);
 
     private:
-        unsigned int fbo;
-        unsigned int texture;
-        unsigned int quadVAO;
+        unsigned int m_fbo;
+        unsigned int m_texture;
+        unsigned int m_quad_vao;
 
         unsigned int create_framebuffer();
 
@@ -36,7 +36,7 @@ namespace engine::graphics {
 
         unsigned int create_quad();
 
-        void draw_quad(unsigned int quadVAO);
+        void draw_quad(unsigned int quad_vao);
 
         void redirect_to_my_framebuffer();
 
