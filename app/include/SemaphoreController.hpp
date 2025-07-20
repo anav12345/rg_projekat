@@ -61,23 +61,23 @@ private:
 
     void start_transition_to_green();
 
-    PointLight red_light;
-    PointLight yellow_light;
-    PointLight green_light;
+    PointLight m_red_light;
+    PointLight m_yellow_light;
+    PointLight m_green_light;
 
     // state for shader
-    int color_state = 0;
+    int m_color_state = 0;
 
     // active light for shadows
-    glm::vec3 light_pos;
+    glm::vec3 m_light_pos;
 
-    SemaphoreState current_state = SemaphoreState::RED;
+    SemaphoreState m_current_state = SemaphoreState::RED;
 
-    float transition_timer = 0.0f;
-    bool yellow_on = false;
-    std::chrono::steady_clock::time_point last_toggle_time;
+    float m_transition_timer = 0.0f;
+    bool m_yellow_on = false;
+    std::chrono::steady_clock::time_point m_last_toggle_time;
 
-    bool yellow_blink_state = false;
+    bool m_yellow_blink_state = false;
 
 };
 }
